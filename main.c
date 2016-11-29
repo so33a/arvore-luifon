@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "arvore.h"
-
+#include "fila.h"
 /*
  *           55
  *      44        66
@@ -10,17 +10,17 @@
  *   pos ordem = 33 45 44 64 77 66 55
  *   pre ordem = 55 44 33 45 66 64 77
  *   em largura = 55 44 66 33 45 64 77
- *   
+ *
  *
  *   rotR (55) =>
- *             
+ *
  *              44
  *          33     55
  *               45  66
  *                  64 77
  *
  *   em largura: 44 33 55 45 66 64 77
- *   
+ *
  */
 int main () {
   ARVORE a = novaArvore();
@@ -32,8 +32,15 @@ int main () {
   inserir(a, 77);
   inserir(a, 45);
   inserir(a, 64);
+  
+  remover(a, 55);
+  remover(a, 66);
+  
+  
   printf ("pre: ");
   imprimePreOrdem(a);
+  
+  
   printf ("\n");
   printf ("pos: ");
   imprimePosOrdem(a);
@@ -45,19 +52,22 @@ int main () {
   imprimeEmLargura(a);
   printf ("\n");
 
+  
+
+
   x = busca(a, 45);
-  if (x == NULL) 
+  if (x == NULL)
     printf ("Nao achou\n");
   else
     printf ("Achou %d \n", x->key);
-  
+
 
   x = busca(a, 1);
-  if (x == NULL) 
+  if (x == NULL)
     printf ("Nao achou\n");
-  else 
+  else
     printf ("Achou %d \n", x->key);
- 
+
 
    x = busca(a, 55);
    a->raiz = rotR(a, x);
@@ -74,6 +84,7 @@ int main () {
    printf ("Insere na Raiz o elemento 46\n");
    imprimeEmLargura(a);
    printf("\n");
+
 
   return 0;
 }
