@@ -4,7 +4,7 @@
 #include "fila.h"
 
 ARVORE novaArvore() {
-  ARVORE a = malloc(sizeof(struct arvore));  
+  ARVORE a = malloc(sizeof(struct arvore));
   a->z = malloc(sizeof(struct node));
   a->raiz = a->z;
   a->raiz->left = a->raiz->right = a->z;
@@ -26,9 +26,9 @@ int contaNosR (ARVORE a, link h) {
 }
 
 int contaParesR (ARVORE a, link h) {
-  if(h == a->z) 
+  if(h == a->z)
     return 0;
-  if (h->key %2 == 0) 
+  if (h->key %2 == 0)
     return 1 + contaParesR(a, h->left) + contaParesR(a, h->right);
   else
     return  contaParesR(a, h->left) + contaParesR(a, h->right);
@@ -59,13 +59,13 @@ void imprimeEmOrdemR (ARVORE a, link h) {
 }
 
 void imprimeEmOrdem (ARVORE a) {
-   imprimeEmOrdemR(a, a->raiz); 
+   imprimeEmOrdemR(a, a->raiz);
 }
 
 link buscaR (ARVORE a, link h, int key) {
   if(h == a->z) return NULL;
   if(h->key == key) return h;
-  if( h->key < key) 
+  if( h->key < key)
     return buscaR(a, h->right, key);
   return buscaR(a, h->left, key);
 }
@@ -83,18 +83,18 @@ link novoNo(int key, link l, link r) {
   return x;
 }
 link inserirR (ARVORE a, link h, int key) {
-  if(h == a->z) 
-    return novoNo(key, a->z, a->z); 
+  if(h == a->z)
+    return novoNo(key, a->z, a->z);
   if(h->key == key) return h;
-  if(h->key < key) 
+  if(h->key < key)
     h->right = inserirR(a, h->right, key);
-  else 
+  else
     h->left = inserirR(a, h->left, key);
   return h;
 }
 link inserirT (ARVORE a, link h, int key) {
-  if(h == a->z) 
-    return novoNo(key, a->z, a->z); 
+  if(h == a->z)
+    return novoNo(key, a->z, a->z);
   if(h->key == key) return h;
   if(h->key < key)  {
     h->right = inserirT(a, h->right, key);
@@ -136,7 +136,7 @@ link rotL(ARVORE a, link h) {
   link x = h->right;
   h->right = x->left;
   x->left = h;
-  return x; 
+  return x;
 }
 link rotR(ARVORE a, link h) {
   link x = h->left;
@@ -145,10 +145,139 @@ link rotR(ARVORE a, link h) {
   return x;
 }
 
-#if 0
-void remover (ARVORE a, int key);
-void removerNo (ARVORE a, link node);
-void destroiArvore(ARVORE a);
-#endif 
+link bpai(FILA temp, ARVORE a, link h, int key){
+	if(h == a->z) return NULL;
+	if(h->key == key){ 
+		return h;
+	}
+	if( h->key < key){
+		desenfilar(temp);
+		enfilar(temp, h);
+		return bpai(temp, a, h->right, key);
+	}
+	desenfilar(temp);
+  	enfilar(temp, h);
+  	return bpai(temp, a, h->left, key);
+}
 
+link ElementoE(ARVORE a, link buscaE){
+	if(buscaE->left == a->z) return buscaE;
+	ElementoE(a, buscaE->left);
+}
 
+void remover (ARVORE a, int key){
+	link temp = busca(a, key);
+	FILA t;
+	link pai;
+	t = novaFila();
+	bpai(t, a, a->raiz, key);
+	if(t->primeiro != NULL)
+		pai = t->primeiro->noArvore;
+	else
+		pai = NULL;
+	
+	
+	/*
+	não tem filhos 
+	*/
+	if((temp->left == a->z) && (temp->right == a->z)){
+		if(pai->right == temp){
+			pai->right = a->z;
+		}
+
+		if(pai->left == temp){
+			pai->left = a->z;
+		}
+		if(t->primeiro == NULL){
+			a->raiz = a->z;
+		}
+		free(temp);
+	}
+	/*
+	tem dois filhos
+	*/
+	else if(temp->left != a->z && temp->right != a->z ){
+		link substituto = ElementoE(a, temp->right);
+		FILA filho = novaFila();
+	    bpai(filho, a, a->raiz, substituto->key);
+		link paisub;
+		
+		if(filho->primeiro != NULL)
+			paisub = filho->primeiro->noArvore;
+		else
+			paisub = NULL;
+			if(paisub != NULL){
+				if(substituto->right != a->z && paisub != NULL){			
+				paisub->left = substituto->right;
+			}
+		if(paisub->left == substituto)
+			paisub->left = a->z;
+			}
+		
+		if(pai != NULL){
+			if(pai->right == temp){
+				pai->right = substituto;	
+				if(substituto != temp->left)
+					substituto->left = temp->left;
+				else
+					substituto->right = a->z;
+				if(substituto != temp->right)
+					substituto->right = temp->right;
+				else
+					substituto->right = a->z;
+			}
+			if(pai->left == temp){
+				pai->left = substituto;
+				if(substituto != temp->left)
+					substituto->left = temp->left;
+				else
+					substituto->right = a->z;
+				if(substituto != temp->right)
+					substituto->right = temp->right;
+				else
+					substituto->right = a->z;
+			}
+		}
+		else{
+			a->raiz = substituto;
+			substituto->left = temp->left;
+			substituto->right = temp->right;
+			free(temp);
+		}
+		free(temp);
+	}	
+
+	
+	/*
+		tem 1 filho
+	*/
+	else{
+		//filho na esquerda
+		if(temp->left != a->z ){
+			if(pai->left == temp){
+				pai->left = temp->left; 
+			}
+			if(pai->right == temp ){
+				pai->right = temp->left;
+			}
+		}
+		//filho na direita
+		else{
+			if(pai->left == temp){
+				pai->left = temp->right;
+			}
+			if(pai->right == temp ){
+				pai->right = temp->right;
+			}
+		}
+			free(temp);
+	}
+}
+
+void removerNo (ARVORE a, link node){
+	
+}
+
+void destroiArvore(ARVORE a){
+	
+}
