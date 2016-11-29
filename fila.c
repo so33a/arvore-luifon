@@ -47,5 +47,3 @@ void destroiFila(FILA f) {
   }
   free(f); f = NULL;
 }
-
-
